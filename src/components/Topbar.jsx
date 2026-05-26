@@ -1,0 +1,117 @@
+import { Bell, Search, Menu, Moon, Sun, LayoutDashboard, Users, ShoppingCart, FileText, CreditCard, TrendingUp, ShieldAlert } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { useAppStore } from '../store/useAppStore';
+
+const navItems = [
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/vendors', label: 'Vendors', icon: Users },
+  { path: '/procurement', label: 'Procurement', icon: ShoppingCart },
+  { path: '/contracts', label: 'Contracts', icon: FileText },
+  { path: '/invoices', label: 'Invoices', icon: CreditCard },
+  { path: '/performance', label: 'Performance', icon: TrendingUp },
+  { path: '/risk-compliance', label: 'Risk & Compliance', icon: ShieldAlert },
+];
+
+const Topbar = () => {
+  const { searchQuery, setSearchQuery, theme, toggleTheme } = useAppStore();
+
+  return (
+    <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 flex flex-col w-full z-20 sticky top-0 transition-colors duration-300">
+      <div className="h-16 flex items-center justify-between px-4 lg:px-6">
+        <div className="flex items-center space-x-2 mr-6">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <span className="text-white font-bold text-lg">V</span>
+          </div>
+          <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent hidden sm:block">
+            VendorOS
+          </span>
+        </div>
+
+        <div className="flex items-center flex-1 max-w-xl hidden md:block px-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={16} className="text-slate-500" />
+            </div>
+            <input 
+              type="text" 
+              placeholder="Search vendors, POs..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-slate-950/50 border border-slate-800 text-sm rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-slate-200 w-full transition-all placeholder:text-slate-600"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-2 sm:space-x-4 ml-auto">
+          <button 
+            onClick={toggleTheme}
+            className="p-2 text-slate-400 hover:text-slate-50 hover:bg-slate-800 rounded-full transition-colors"
+            title="Toggle Theme"
+          >
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+
+          <button className="relative p-2 text-slate-400 hover:text-slate-50 hover:bg-slate-800 rounded-full transition-colors">
+            <Bell size={20} />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-slate-900"></span>
+          </button>
+
+          <div className="flex items-center space-x-3 pl-2 sm:pl-4 sm:border-l border-slate-800">
+            <div className="text-right hidden lg:block">
+              <div className="text-sm font-medium text-slate-200">Alex Carter</div>
+              <div className="text-xs text-slate-500">Procurement Manager</div>
+            </div>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-600 to-emerald-500 p-0.5">
+              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center border border-slate-700/50">
+                <span className="text-sm font-semibold text-slate-200">AC</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Search Bar */}
+      <div className="md:hidden px-4 pb-3">
+        <div className="relative w-full">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search size={16} className="text-slate-500" />
+          </div>
+          <input 
+            type="text" 
+            placeholder="Search vendors, POs..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="bg-slate-950/50 border border-slate-800 text-sm rounded-full pl-10 pr-4 py-2 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-slate-200 w-full transition-all placeholder:text-slate-600"
+          />
+        </div>
+      </div>
+      
+      {/* Navigation Bar */}
+      <div className="flex overflow-x-auto custom-scrollbar border-t border-slate-800/50">
+        <div className="flex space-x-2 py-2 px-4 mx-auto min-w-max">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => 
+                  `flex items-center px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap ${
+                    isActive 
+                      ? 'bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 text-cyan-500 font-medium border border-cyan-500/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]' 
+                      : 'text-slate-400 hover:text-slate-50 hover:bg-slate-800'
+                  }`
+                }
+              >
+                <Icon size={18} className="mr-2 flex-shrink-0" />
+                <span className="text-sm">{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Topbar;

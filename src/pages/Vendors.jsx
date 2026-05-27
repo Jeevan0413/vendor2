@@ -57,8 +57,7 @@ const Vendors = () => {
       risk: 'Pending',
       rating: 0.0,
     };
-    setVendors([vendorToAdd, ...vendors]);
-    setVendors([vendorToAdd, ...vendors]);
+    setVendors(prev => [vendorToAdd, ...prev]);
     resetForm();
     setIsAddVendorOpen(false);
   };

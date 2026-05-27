@@ -1,96 +1,262 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, ShieldAlert, FileSearch, Shield } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, FileSearch, Shield, Plus, Eye, Edit2, Trash2 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
+import Modal from '../components/Modal';
 
 const SEED_AUDITS = [
-  { vendor: 'MedEquip Global', type: 'ISO 27001 Security Audit', status: 'Failed', date: 'Oct 29, 2024' },
-  { vendor: 'TechNova Solutions', type: 'Financial Risk Assessment', status: 'Passed', date: 'Oct 25, 2024' },
-  { vendor: 'BuildCore Supplies', type: 'Environmental Compliance', status: 'Passed', date: 'Oct 20, 2024' },
-  { vendor: 'SwiftLog Freight', type: 'Data Privacy Assessment', status: 'Pending', date: 'Oct 15, 2024' },
+  { id: 1, vendor: 'MedEquip Global',    type: 'ISO 27001 Security Audit',    status: 'Failed',  date: 'Oct 29, 2024', auditor: 'External — CyberAssure Ltd', findings: 'Critical vulnerabilities found in data handling procedures. Immediate remediation required.', nextAudit: 'Nov 29, 2024' },
+  { id: 2, vendor: 'TechNova Solutions', type: 'Financial Risk Assessment',   status: 'Passed',  date: 'Oct 25, 2024', auditor: 'Internal — Finance Team',      findings: 'All financial controls are in order. No discrepancies found.',                               nextAudit: 'Apr 25, 2025'  },
+  { id: 3, vendor: 'BuildCore Supplies', type: 'Environmental Compliance',    status: 'Passed',  date: 'Oct 20, 2024', auditor: 'External — GreenAudit Inc',    findings: 'Vendor meets all environmental standards. Minor recommendation on waste disposal.',          nextAudit: 'Apr 20, 2025'  },
+  { id: 4, vendor: 'SwiftLog Freight',   type: 'Data Privacy Assessment',     status: 'Pending', date: 'Oct 15, 2024', auditor: 'External — PrivacyPro',        findings: 'Assessment in progress. Initial indicators are positive.',                                  nextAudit: 'TBD'           },
 ];
+
+const statusBadge = {
+  Passed:  'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+  Failed:  'bg-rose-500/10 text-rose-400 border-rose-500/30',
+  Pending: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+};
 
 const RiskCompliance = () => {
   const { searchQuery } = useAppStore();
-  
-  const filteredAudits = SEED_AUDITS.filter(audit => 
-    audit.vendor.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    audit.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    audit.status.toLowerCase().includes(searchQuery.toLowerCase())
+  const [audits, setAudits] = useState(SEED_AUDITS);
+  const [isViewOpen,  setIsViewOpen]  = useState(false);
+  const [isEditOpen,  setIsEditOpen]  = useState(false);
+  const [isAddOpen,   setIsAddOpen]   = useState(false);
+  const [selected,    setSelected]    = useState(null);
+  const [editAudit,   setEditAudit]   = useState(null);
+  const [newAudit,    setNewAudit]    = useState({ vendor: '', type: '', auditor: '', date: '', nextAudit: '', findings: '', status: 'Pending' });
+
+  const openView = (a) => { setSelected(a); setIsViewOpen(true); };
+  const openEdit = (a) => { setEditAudit({ ...a }); setIsViewOpen(false); setIsEditOpen(true); };
+
+  const handleDelete = (id) => {
+    if (window.confirm('Delete this audit record?')) {
+      setAudits(audits.filter(a => a.id !== id));
+      setIsViewOpen(false);
+    }
+  };
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    setAudits([{ ...newAudit, id: Date.now() }, ...audits]);
+    setNewAudit({ vendor: '', type: '', auditor: '', date: '', nextAudit: '', findings: '', status: 'Pending' });
+    setIsAddOpen(false);
+  };
+
+  const handleEditSave = (e) => {
+    e.preventDefault();
+    setAudits(audits.map(a => a.id === editAudit.id ? editAudit : a));
+    setIsEditOpen(false);
+    setEditAudit(null);
+  };
+
+  const filteredAudits = audits.filter(a =>
+    a.vendor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    a.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    a.status.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const compliantCount   = audits.filter(a => a.status === 'Passed').length;
+  const underReviewCount = audits.filter(a => a.status === 'Pending').length;
+  const highRiskCount    = audits.filter(a => a.status === 'Failed').length;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="space-y-6"
-    >
-      <div>
-        <h2 className="text-2xl font-bold text-slate-50">Risk & Compliance</h2>
-        <p className="text-slate-400 text-sm mt-1">Monitor vendor risk scores and compliance audits</p>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6">
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-50">Risk &amp; Compliance</h2>
+          <p className="text-slate-400 text-sm mt-1">Monitor vendor risk scores and compliance audits</p>
+        </div>
+        <button onClick={() => setIsAddOpen(true)} className="btn-primary flex items-center shrink-0 w-full sm:w-auto justify-center">
+          <Plus size={16} className="mr-2" /> New Audit
+        </button>
       </div>
 
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="glass-card p-4 sm:p-6 bg-emerald-500/5 border-emerald-500/20">
-          <div className="flex items-center mb-4">
-            <ShieldCheck size={24} className="text-emerald-500 mr-3" />
-            <h3 className="text-lg font-semibold text-slate-50">Compliant</h3>
-          </div>
-          <p className="text-3xl font-bold text-slate-50 mb-1">86</p>
+          <div className="flex items-center mb-4"><ShieldCheck size={24} className="text-emerald-500 mr-3" /><h3 className="text-lg font-semibold text-slate-50">Compliant</h3></div>
+          <p className="text-3xl font-bold text-slate-50 mb-1">{compliantCount}</p>
           <p className="text-sm text-slate-400">Vendors passing all checks</p>
         </div>
-
         <div className="glass-card p-4 sm:p-6 bg-amber-500/5 border-amber-500/20">
-          <div className="flex items-center mb-4">
-            <Shield size={24} className="text-amber-500 mr-3" />
-            <h3 className="text-lg font-semibold text-slate-50">Under Review</h3>
-          </div>
-          <p className="text-3xl font-bold text-slate-50 mb-1">12</p>
+          <div className="flex items-center mb-4"><Shield size={24} className="text-amber-500 mr-3" /><h3 className="text-lg font-semibold text-slate-50">Under Review</h3></div>
+          <p className="text-3xl font-bold text-slate-50 mb-1">{underReviewCount}</p>
           <p className="text-sm text-slate-400">Pending audit results</p>
         </div>
-
         <div className="glass-card p-4 sm:p-6 bg-rose-500/5 border-rose-500/20">
-          <div className="flex items-center mb-4">
-            <ShieldAlert size={24} className="text-rose-500 mr-3" />
-            <h3 className="text-lg font-semibold text-slate-50">High Risk</h3>
-          </div>
-          <p className="text-3xl font-bold text-slate-50 mb-1">4</p>
+          <div className="flex items-center mb-4"><ShieldAlert size={24} className="text-rose-500 mr-3" /><h3 className="text-lg font-semibold text-slate-50">High Risk</h3></div>
+          <p className="text-3xl font-bold text-slate-50 mb-1">{highRiskCount}</p>
           <p className="text-sm text-slate-400">Requires immediate action</p>
         </div>
       </div>
 
+      {/* Audit Table */}
       <div className="glass-panel p-4 sm:p-6">
         <h3 className="text-lg font-semibold text-slate-50 mb-6 flex items-center">
-          <FileSearch className="mr-2 text-cyan-400" size={20} />
-          Recent Compliance Audits
+          <FileSearch className="mr-2 text-cyan-400" size={20} /> Recent Compliance Audits
         </h3>
         <div className="space-y-3">
-          {filteredAudits.length > 0 ? (
-            filteredAudits.map((audit, i) => (
-            <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-900/50 rounded-xl border border-slate-700/50 hover:bg-slate-800/50 transition-colors">
-              <div className="mb-2 sm:mb-0">
-                <h4 className="font-medium text-slate-200">{audit.type}</h4>
-                <p className="text-sm text-slate-400">Vendor: <span className="text-slate-300">{audit.vendor}</span></p>
+          {filteredAudits.length > 0 ? filteredAudits.map((audit) => {
+            const s = statusBadge[audit.status] || statusBadge.Pending;
+            return (
+              <div key={audit.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-900/50 rounded-xl border border-slate-700/50 hover:bg-slate-800/50 hover:border-slate-600 transition-all group cursor-pointer" onClick={() => openView(audit)}>
+                <div className="mb-3 sm:mb-0">
+                  <h4 className="font-medium text-slate-200">{audit.type}</h4>
+                  <p className="text-sm text-slate-400">Vendor: <span className="text-slate-300">{audit.vendor}</span></p>
+                </div>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-sm text-slate-400">{audit.date}</span>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${s}`}>{audit.status}</span>
+                  {/* Actions (visible on hover) */}
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={(e) => { e.stopPropagation(); openView(audit); }} className="btn-icon" title="View Report"><Eye size={14} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(audit); }} className="btn-icon" title="Edit"><Edit2 size={14} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); handleDelete(audit.id); }} className="btn-icon hover:text-rose-400" title="Delete"><Trash2 size={14} /></button>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-slate-400">{audit.date}</span>
-                <span className={`w-24 text-center ${
-                  audit.status === 'Passed' ? 'badge-success' : 
-                  audit.status === 'Pending' ? 'badge-warning' : 'badge-error'
-                }`}>
-                  {audit.status}
-                </span>
-                <button className="text-cyan-400 text-sm font-medium hover:text-cyan-300">View Report</button>
-              </div>
-            </div>
-            ))
-          ) : (
+            );
+          }) : (
             <div className="p-8 text-center text-slate-400 border border-slate-700/50 rounded-xl bg-slate-900/20">
               No compliance audits found matching "{searchQuery}"
             </div>
           )}
         </div>
       </div>
+
+      {/* ── View Audit Modal ── */}
+      <Modal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} title="Audit Report">
+        {selected && (() => {
+          const s = statusBadge[selected.status] || statusBadge.Pending;
+          return (
+            <div className="space-y-5">
+              <div className="flex items-start justify-between border-b border-slate-700/50 pb-4">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-50">{selected.type}</h3>
+                  <p className="text-sm text-cyan-400 mt-0.5">{selected.vendor}</p>
+                </div>
+                <span className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${s}`}>{selected.status}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div><p className="text-slate-500 text-xs mb-0.5">Audit Date</p><p className="text-slate-200">{selected.date}</p></div>
+                <div><p className="text-slate-500 text-xs mb-0.5">Next Audit Due</p><p className="text-slate-200">{selected.nextAudit}</p></div>
+                <div className="col-span-2"><p className="text-slate-500 text-xs mb-0.5">Auditor / Firm</p><p className="text-slate-200">{selected.auditor}</p></div>
+              </div>
+              <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
+                <p className="text-xs text-slate-500 mb-2">Findings &amp; Notes</p>
+                <p className="text-sm text-slate-300 leading-relaxed">{selected.findings}</p>
+              </div>
+              <div className="pt-2 flex justify-between items-center border-t border-slate-700/50">
+                <button onClick={() => handleDelete(selected.id)} className="flex items-center gap-2 text-sm text-rose-400 hover:text-rose-300 hover:bg-rose-400/10 px-3 py-2 rounded-lg transition-colors">
+                  <Trash2 size={15} /> Delete
+                </button>
+                <div className="flex gap-3">
+                  <button onClick={() => setIsViewOpen(false)} className="btn-secondary">Close</button>
+                  <button onClick={() => openEdit(selected)} className="btn-primary flex items-center gap-2"><Edit2 size={15} /> Edit</button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+      </Modal>
+
+      {/* ── Edit Audit Modal ── */}
+      {editAudit && (
+        <Modal isOpen={isEditOpen} onClose={() => { setIsEditOpen(false); setEditAudit(null); }} title="Edit Audit Record">
+          <form className="space-y-4" onSubmit={handleEditSave}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Vendor</label>
+                <select className="input-field" value={editAudit.vendor} onChange={(e) => setEditAudit({ ...editAudit, vendor: e.target.value })}>
+                  <option>TechNova Solutions</option><option>BuildCore Supplies</option>
+                  <option>SwiftLog Freight</option><option>MedEquip Global</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Status</label>
+                <select className="input-field" value={editAudit.status} onChange={(e) => setEditAudit({ ...editAudit, status: e.target.value })}>
+                  <option>Pending</option><option>Passed</option><option>Failed</option>
+                </select>
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-slate-300 mb-1">Audit Type *</label>
+                <input type="text" className="input-field" required value={editAudit.type} onChange={(e) => setEditAudit({ ...editAudit, type: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Audit Date</label>
+                <input type="text" className="input-field" placeholder="Oct 29, 2024" value={editAudit.date} onChange={(e) => setEditAudit({ ...editAudit, date: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Next Audit Due</label>
+                <input type="text" className="input-field" placeholder="Nov 29, 2024" value={editAudit.nextAudit} onChange={(e) => setEditAudit({ ...editAudit, nextAudit: e.target.value })} />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-slate-300 mb-1">Auditor / Firm</label>
+                <input type="text" className="input-field" value={editAudit.auditor} onChange={(e) => setEditAudit({ ...editAudit, auditor: e.target.value })} />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-slate-300 mb-1">Findings &amp; Notes</label>
+                <textarea rows={4} className="input-field resize-none" value={editAudit.findings} onChange={(e) => setEditAudit({ ...editAudit, findings: e.target.value })} />
+              </div>
+            </div>
+            <div className="pt-4 flex justify-end gap-3 border-t border-slate-700/50">
+              <button type="button" onClick={() => { setIsEditOpen(false); setEditAudit(null); }} className="btn-secondary">Cancel</button>
+              <button type="submit" className="btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* ── Add Audit Modal ── */}
+      <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Record New Audit">
+        <form className="space-y-4" onSubmit={handleAdd}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Vendor *</label>
+              <select className="input-field" required value={newAudit.vendor} onChange={(e) => setNewAudit({ ...newAudit, vendor: e.target.value })}>
+                <option value="">Select vendor...</option>
+                <option>TechNova Solutions</option><option>BuildCore Supplies</option>
+                <option>SwiftLog Freight</option><option>MedEquip Global</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Status</label>
+              <select className="input-field" value={newAudit.status} onChange={(e) => setNewAudit({ ...newAudit, status: e.target.value })}>
+                <option>Pending</option><option>Passed</option><option>Failed</option>
+              </select>
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-slate-300 mb-1">Audit Type *</label>
+              <input type="text" className="input-field" required placeholder="e.g. ISO 27001 Security Audit" value={newAudit.type} onChange={(e) => setNewAudit({ ...newAudit, type: e.target.value })} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Audit Date</label>
+              <input type="text" className="input-field" placeholder="Oct 29, 2024" value={newAudit.date} onChange={(e) => setNewAudit({ ...newAudit, date: e.target.value })} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Next Audit Due</label>
+              <input type="text" className="input-field" placeholder="Apr 29, 2025" value={newAudit.nextAudit} onChange={(e) => setNewAudit({ ...newAudit, nextAudit: e.target.value })} />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-slate-300 mb-1">Auditor / Firm</label>
+              <input type="text" className="input-field" placeholder="e.g. External — CyberAssure Ltd" value={newAudit.auditor} onChange={(e) => setNewAudit({ ...newAudit, auditor: e.target.value })} />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-slate-300 mb-1">Findings &amp; Notes</label>
+              <textarea rows={3} className="input-field resize-none" placeholder="Summarise key findings..." value={newAudit.findings} onChange={(e) => setNewAudit({ ...newAudit, findings: e.target.value })} />
+            </div>
+          </div>
+          <div className="pt-4 flex justify-end gap-3 border-t border-slate-700/50">
+            <button type="button" onClick={() => setIsAddOpen(false)} className="btn-secondary">Cancel</button>
+            <button type="submit" className="btn-primary">Record Audit</button>
+          </div>
+        </form>
+      </Modal>
+
     </motion.div>
   );
 };

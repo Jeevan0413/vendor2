@@ -17,8 +17,15 @@ const Vendors = () => {
   const [vendors, setVendors] = useState(SEED_VENDORS);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedVendor, setSelectedVendor] = useState(null);
   
   const [newVendor, setNewVendor] = useState({ name: '', category: 'IT Services', contact: '', email: '', phone: '' });
+
+  const resetForm = () => {
+    setNewVendor({ name: '', category: 'IT Services', contact: '', email: '', phone: '' });
+  };
 
   const handleAddVendor = (e) => {
     e.preventDefault();
@@ -33,8 +40,32 @@ const Vendors = () => {
       rating: 0.0,
     };
     setVendors([vendorToAdd, ...vendors]);
-    setNewVendor({ name: '', category: 'IT Services', contact: '', email: '', phone: '' });
+    setVendors([vendorToAdd, ...vendors]);
+    resetForm();
     setIsAddVendorOpen(false);
+  };
+
+  const handleEditVendor = (e) => {
+    e.preventDefault();
+    setVendors(vendors.map(v => v.id === newVendor.id ? newVendor : v));
+    resetForm();
+    setIsEditModalOpen(false);
+  };
+
+  const handleDeleteVendor = (id) => {
+    if (window.confirm('Are you sure you want to delete this vendor?')) {
+      setVendors(vendors.filter(v => v.id !== id));
+    }
+  };
+
+  const openEditModal = (vendor) => {
+    setNewVendor(vendor);
+    setIsEditModalOpen(true);
+  };
+
+  const openViewModal = (vendor) => {
+    setSelectedVendor(vendor);
+    setIsViewModalOpen(true);
   };
 
   const filteredVendors = vendors.filter(vendor => 
@@ -138,9 +169,9 @@ const Vendors = () => {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="btn-icon" title="View details"><Eye size={16} /></button>
-                      <button className="btn-icon" title="Edit"><Edit2 size={16} /></button>
-                      <button className="btn-icon hover:text-rose-400" title="Delete"><Trash2 size={16} /></button>
+                      <button onClick={() => openViewModal(vendor)} className="btn-icon" title="View details"><Eye size={16} /></button>
+                      <button onClick={() => openEditModal(vendor)} className="btn-icon" title="Edit"><Edit2 size={16} /></button>
+                      <button onClick={() => handleDeleteVendor(vendor.id)} className="btn-icon hover:text-rose-400" title="Delete"><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>
@@ -205,6 +236,124 @@ const Vendors = () => {
             <button type="submit" className="btn-primary">Register Vendor</button>
           </div>
         </form>
+      </Modal>
+
+      <Modal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); resetForm(); }} title="Edit Vendor">
+        <form className="space-y-4" onSubmit={handleEditVendor}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Company Name *</label>
+              <input type="text" className="input-field" required placeholder="e.g. Acme Corp" value={newVendor.name} onChange={(e) => setNewVendor({...newVendor, name: e.target.value})} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Category</label>
+              <select className="input-field" value={newVendor.category} onChange={(e) => setNewVendor({...newVendor, category: e.target.value})}>
+                <option>IT Services</option>
+                <option>Construction</option>
+                <option>Logistics</option>
+                <option>Healthcare</option>
+                <option>E-commerce</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Contact Person</label>
+            <input type="text" className="input-field" placeholder="Full Name" value={newVendor.contact} onChange={(e) => setNewVendor({...newVendor, contact: e.target.value})} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Email Address *</label>
+              <input type="email" className="input-field" required placeholder="email@company.com" value={newVendor.email} onChange={(e) => setNewVendor({...newVendor, email: e.target.value})} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Phone Number</label>
+              <input type="tel" className="input-field" placeholder="+1 (555) 000-0000" value={newVendor.phone || ''} onChange={(e) => setNewVendor({...newVendor, phone: e.target.value})} />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Status</label>
+              <select className="input-field" value={newVendor.status} onChange={(e) => setNewVendor({...newVendor, status: e.target.value})}>
+                <option>Active</option>
+                <option>Under Review</option>
+                <option>Inactive</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Risk Level</label>
+              <select className="input-field" value={newVendor.risk} onChange={(e) => setNewVendor({...newVendor, risk: e.target.value})}>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+                <option>Pending</option>
+              </select>
+            </div>
+          </div>
+          <div className="pt-4 flex justify-end gap-3">
+            <button type="button" onClick={() => { setIsEditModalOpen(false); resetForm(); }} className="btn-secondary">Cancel</button>
+            <button type="submit" className="btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} title="Vendor Details">
+        {selectedVendor && (
+          <div className="space-y-4">
+            <div className="flex items-center space-x-4 border-b border-slate-700/50 pb-4">
+              <div className="w-16 h-16 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                <span className="text-2xl text-slate-300 font-bold">{selectedVendor.name.charAt(0)}</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-50">{selectedVendor.name}</h3>
+                <p className="text-sm text-cyan-400 font-mono mt-0.5">{selectedVendor.id}</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
+              <div>
+                <p className="text-slate-500 mb-1">Category</p>
+                <p className="text-slate-200 font-medium">{selectedVendor.category}</p>
+              </div>
+              <div>
+                <p className="text-slate-500 mb-1">Contact Person</p>
+                <p className="text-slate-200 font-medium">{selectedVendor.contact}</p>
+              </div>
+              <div>
+                <p className="text-slate-500 mb-1">Email Address</p>
+                <p className="text-slate-200 font-medium">{selectedVendor.email}</p>
+              </div>
+              <div>
+                <p className="text-slate-500 mb-1">Rating</p>
+                <div className="flex items-center">
+                  <span className="font-semibold text-slate-50 mr-1">{selectedVendor.rating}</span>
+                  <span className="text-amber-400">★</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-slate-500 mb-1">Status</p>
+                <span className={`badge-success ${
+                  selectedVendor.status === 'Active' ? 'badge-success' : 
+                  selectedVendor.status === 'Under Review' ? 'badge-warning' : 'badge-error'
+                }`}>
+                  {selectedVendor.status}
+                </span>
+              </div>
+              <div>
+                <p className="text-slate-500 mb-1">Risk Level</p>
+                <div className="flex items-center">
+                  {selectedVendor.risk === 'Low' && <ShieldCheck size={16} className="text-emerald-500 mr-2" />}
+                  {selectedVendor.risk === 'Medium' && <AlertCircle size={16} className="text-amber-500 mr-2" />}
+                  {selectedVendor.risk === 'High' && <AlertCircle size={16} className="text-rose-500 mr-2" />}
+                  <span className="text-slate-200 font-medium">{selectedVendor.risk}</span>
+                </div>
+              </div>
+            </div>
+            <div className="pt-4 flex justify-end">
+              <button onClick={() => setIsViewModalOpen(false)} className="btn-secondary">Close</button>
+            </div>
+          </div>
+        )}
       </Modal>
 
       <Modal isOpen={isFiltersOpen} onClose={() => setIsFiltersOpen(false)} title="Advanced Filters">

@@ -102,11 +102,11 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.5 }}
-          className="glass-card p-6 lg:col-span-2"
+          className="glass-card p-4 sm:p-6 lg:col-span-2"
         >
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h3 className="text-lg font-semibold text-slate-50">Procurement Spend Analytics</h3>
-            <select className="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block px-3 py-1.5">
+            <select className="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block px-3 py-1.5 w-full sm:w-auto">
               <option>Last 6 months</option>
               <option>This Year</option>
               <option>Last Year</option>
@@ -139,7 +139,7 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.6 }}
-          className="glass-card p-6"
+          className="glass-card p-4 sm:p-6"
         >
           <h3 className="text-lg font-semibold text-slate-50 mb-6">Vendors by Category</h3>
           <div className="h-64">
@@ -165,7 +165,7 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.7 }}
-          className="glass-card p-6"
+          className="glass-card p-4 sm:p-6"
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-slate-50 flex items-center">
@@ -200,7 +200,7 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.8 }}
-          className="glass-card p-6"
+          className="glass-card p-4 sm:p-6"
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-slate-50 flex items-center">

@@ -57,7 +57,7 @@ const Vendors = () => {
           <p className="text-slate-400 text-sm mt-1">Manage and evaluate your vendor network</p>
         </div>
         
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
             <input 

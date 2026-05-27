@@ -26,7 +26,7 @@ const Performance = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-panel p-6">
+        <div className="glass-panel p-4 sm:p-6">
           <h3 className="text-lg font-semibold text-slate-50 mb-6">Top Vendor Scorecard (TechNova)</h3>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -41,7 +41,7 @@ const Performance = () => {
           </div>
         </div>
 
-        <div className="glass-panel p-6">
+        <div className="glass-panel p-4 sm:p-6">
           <h3 className="text-lg font-semibold text-slate-50 mb-6">KPI Metrics (Fleet Average)</h3>
           <div className="space-y-6">
             {[

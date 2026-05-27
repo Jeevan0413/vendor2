@@ -31,7 +31,7 @@ const RiskCompliance = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6 bg-emerald-500/5 border-emerald-500/20">
+        <div className="glass-card p-4 sm:p-6 bg-emerald-500/5 border-emerald-500/20">
           <div className="flex items-center mb-4">
             <ShieldCheck size={24} className="text-emerald-500 mr-3" />
             <h3 className="text-lg font-semibold text-slate-50">Compliant</h3>
@@ -40,7 +40,7 @@ const RiskCompliance = () => {
           <p className="text-sm text-slate-400">Vendors passing all checks</p>
         </div>
 
-        <div className="glass-card p-6 bg-amber-500/5 border-amber-500/20">
+        <div className="glass-card p-4 sm:p-6 bg-amber-500/5 border-amber-500/20">
           <div className="flex items-center mb-4">
             <Shield size={24} className="text-amber-500 mr-3" />
             <h3 className="text-lg font-semibold text-slate-50">Under Review</h3>
@@ -49,7 +49,7 @@ const RiskCompliance = () => {
           <p className="text-sm text-slate-400">Pending audit results</p>
         </div>
 
-        <div className="glass-card p-6 bg-rose-500/5 border-rose-500/20">
+        <div className="glass-card p-4 sm:p-6 bg-rose-500/5 border-rose-500/20">
           <div className="flex items-center mb-4">
             <ShieldAlert size={24} className="text-rose-500 mr-3" />
             <h3 className="text-lg font-semibold text-slate-50">High Risk</h3>
@@ -59,7 +59,7 @@ const RiskCompliance = () => {
         </div>
       </div>
 
-      <div className="glass-panel p-6">
+      <div className="glass-panel p-4 sm:p-6">
         <h3 className="text-lg font-semibold text-slate-50 mb-6 flex items-center">
           <FileSearch className="mr-2 text-cyan-400" size={20} />
           Recent Compliance Audits

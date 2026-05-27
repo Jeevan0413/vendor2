@@ -7,7 +7,7 @@ const MainLayout = () => {
       <Topbar />
       
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-6 relative">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 relative">
           {/* Subtle background glow effect */}
           <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-cyan-900/10 to-transparent -z-10" />
           

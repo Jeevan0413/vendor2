@@ -46,12 +46,12 @@ const Procurement = () => {
       transition={{ duration: 0.4 }}
       className="space-y-6"
     >
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-50">Procurement Operations</h2>
           <p className="text-slate-400 text-sm mt-1">Manage purchase orders and workflows</p>
         </div>
-        <button onClick={() => setIsAddPOOpen(true)} className="btn-primary flex items-center">
+        <button onClick={() => setIsAddPOOpen(true)} className="btn-primary flex items-center shrink-0 w-full sm:w-auto justify-center">
           <Plus size={16} className="mr-2" />
           Create PO
         </button>

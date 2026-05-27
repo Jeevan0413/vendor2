@@ -1,4 +1,5 @@
-import { Bell, Search, Menu, Moon, Sun, LayoutDashboard, Users, ShoppingCart, FileText, CreditCard, TrendingUp, ShieldAlert } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, Search, Menu, X, Moon, Sun, LayoutDashboard, Users, ShoppingCart, FileText, CreditCard, TrendingUp, ShieldAlert } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 
@@ -15,10 +16,19 @@ const navItems = [
 const Topbar = () => {
   const { searchQuery, setSearchQuery, theme, toggleTheme } = useAppStore();
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
-    <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 flex flex-col w-full z-20 sticky top-0 transition-colors duration-300">
+    <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 flex flex-col w-full z-20 sticky top-0 transition-colors duration-300 relative">
       <div className="h-16 flex items-center justify-between px-4 lg:px-6">
         <div className="flex items-center space-x-2 mr-6">
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-slate-400 hover:text-slate-50 hover:bg-slate-800 rounded-lg transition-colors mr-1"
+          >
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
             <span className="text-white font-bold text-lg">V</span>
           </div>
@@ -86,8 +96,8 @@ const Topbar = () => {
         </div>
       </div>
       
-      {/* Navigation Bar */}
-      <div className="flex overflow-x-auto custom-scrollbar border-t border-slate-800/50">
+      {/* Navigation Bar (Tablet / Desktop) */}
+      <div className="hidden md:flex overflow-x-auto custom-scrollbar border-t border-slate-800/50">
         <div className="flex space-x-2 py-2 px-4 mx-auto min-w-max">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -110,6 +120,32 @@ const Topbar = () => {
           })}
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden flex flex-col px-4 py-3 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 space-y-2 shadow-2xl absolute w-full top-full left-0 z-50">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={({ isActive }) => 
+                  `flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 text-cyan-500 font-medium border border-cyan-500/20' 
+                      : 'text-slate-400 hover:text-slate-50 hover:bg-slate-800'
+                  }`
+                }
+              >
+                <Icon size={18} className="mr-3 flex-shrink-0" />
+                <span className="text-sm">{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </div>
+      )}
     </header>
   );
 };

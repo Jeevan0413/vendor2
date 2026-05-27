@@ -23,7 +23,7 @@ const Contracts = () => {
       transition={{ duration: 0.4 }}
       className="space-y-6"
     >
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-50">Contract Management</h2>
           <p className="text-slate-400 text-sm mt-1">Manage agreements and track SLA renewals</p>
@@ -31,7 +31,7 @@ const Contracts = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-panel p-6 col-span-2">
+        <div className="glass-panel p-4 sm:p-6 col-span-2">
           <h3 className="text-lg font-semibold text-slate-50 mb-4">Active Contracts</h3>
           <div className="space-y-4">
             {filteredContracts.length > 0 ? (
@@ -63,7 +63,7 @@ const Contracts = () => {
           </div>
         </div>
 
-        <div className="glass-panel p-6">
+        <div className="glass-panel p-4 sm:p-6">
           <h3 className="text-lg font-semibold text-slate-50 mb-4 flex items-center">
             <AlertCircle className="text-rose-400 mr-2" size={20} />
             Action Required

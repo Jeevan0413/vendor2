@@ -17,7 +17,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-slate-900 border border-slate-700/50 shadow-2xl rounded-2xl z-50 overflow-hidden"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-lg bg-slate-900 border border-slate-700/50 shadow-2xl rounded-2xl z-50 overflow-hidden"
           >
             <div className="flex justify-between items-center p-5 border-b border-slate-800">
               <h2 className="text-xl font-semibold text-slate-50">{title}</h2>

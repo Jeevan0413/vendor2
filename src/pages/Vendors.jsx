@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, Plus, MoreVertical, Edit2, Eye, Trash2, ShieldCheck, AlertCircle } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
@@ -20,6 +20,8 @@ const Vendors = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   
   const [filters, setFilters] = useState({ status: [], risk: [] });
   
@@ -94,6 +96,15 @@ const Vendors = () => {
 
     return matchesSearch && matchesStatus && matchesRisk;
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filters]);
+
+  const totalEntries = filteredVendors.length;
+  const totalPages = Math.ceil(totalEntries / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedVendors = filteredVendors.slice(startIndex, startIndex + itemsPerPage);
   
   return (
     <motion.div
@@ -147,8 +158,8 @@ const Vendors = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">
-              {filteredVendors.length > 0 ? (
-                filteredVendors.map((vendor) => (
+              {paginatedVendors.length > 0 ? (
+                paginatedVendors.map((vendor) => (
                 <tr key={vendor.id} className="hover:bg-slate-800/30 transition-colors group">
                   <td className="p-4">
                     <div className="flex items-center">
@@ -208,14 +219,41 @@ const Vendors = () => {
           </table>
         </div>
         
-        {/* Pagination Dummy */}
-        <div className="p-4 border-t border-slate-700/50 flex justify-between items-center text-sm text-slate-400">
-          <span>Showing 1 to 5 of 24 entries</span>
-          <div className="flex gap-1">
-            <button className="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800 disabled:opacity-50">Prev</button>
-            <button className="px-3 py-1 rounded bg-cyan-600/20 text-cyan-400 border border-cyan-500/30">1</button>
-            <button className="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800">2</button>
-            <button className="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800">Next</button>
+        {/* Pagination Controls */}
+        <div className="p-4 border-t border-slate-700/50 flex flex-col sm:flex-row justify-between items-center text-sm text-slate-400 gap-4">
+          <span>
+            Showing {totalEntries === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + itemsPerPage, totalEntries)} of {totalEntries} entries
+          </span>
+          <div className="flex gap-1 flex-wrap justify-center">
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Prev
+            </button>
+            
+            {[...Array(totalPages)].map((_, i) => (
+              <button 
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 rounded border transition-colors ${
+                  currentPage === i + 1 
+                    ? 'bg-cyan-600/20 text-cyan-400 border-cyan-500/30' 
+                    : 'border-slate-700 hover:bg-slate-800'
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>

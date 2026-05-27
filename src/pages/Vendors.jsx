@@ -21,7 +21,23 @@ const Vendors = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
   
+  const [filters, setFilters] = useState({ status: [], risk: [] });
+  
   const [newVendor, setNewVendor] = useState({ name: '', category: 'IT Services', contact: '', email: '', phone: '' });
+
+  const toggleFilter = (type, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [type]: prev[type].includes(value) 
+        ? prev[type].filter(item => item !== value)
+        : [...prev[type], value]
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({ status: [], risk: [] });
+    setIsFiltersOpen(false);
+  };
 
   const resetForm = () => {
     setNewVendor({ name: '', category: 'IT Services', contact: '', email: '', phone: '' });
@@ -68,11 +84,16 @@ const Vendors = () => {
     setIsViewModalOpen(true);
   };
 
-  const filteredVendors = vendors.filter(vendor => 
-    vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    vendor.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    vendor.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredVendors = vendors.filter(vendor => {
+    const matchesSearch = vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          vendor.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          vendor.id.toLowerCase().includes(searchQuery.toLowerCase());
+                          
+    const matchesStatus = filters.status.length === 0 || filters.status.includes(vendor.status);
+    const matchesRisk = filters.risk.length === 0 || filters.risk.includes(vendor.risk);
+
+    return matchesSearch && matchesStatus && matchesRisk;
+  });
   
   return (
     <motion.div
@@ -359,22 +380,39 @@ const Vendors = () => {
       <Modal isOpen={isFiltersOpen} onClose={() => setIsFiltersOpen(false)} title="Advanced Filters">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Status</label>
-            <div className="flex gap-2">
-              <label className="flex items-center space-x-2 text-slate-300"><input type="checkbox" className="rounded border-slate-700 bg-slate-900" /> <span>Active</span></label>
-              <label className="flex items-center space-x-2 text-slate-300 ml-4"><input type="checkbox" className="rounded border-slate-700 bg-slate-900" /> <span>Under Review</span></label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Status</label>
+            <div className="flex flex-wrap gap-4">
+              {['Active', 'Under Review', 'Inactive'].map(status => (
+                <label key={status} className="flex items-center space-x-2 text-slate-300 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-cyan-500" 
+                    checked={filters.status.includes(status)}
+                    onChange={() => toggleFilter('status', status)}
+                  /> 
+                  <span>{status}</span>
+                </label>
+              ))}
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Risk Level</label>
-            <div className="flex gap-2">
-              <label className="flex items-center space-x-2 text-slate-300"><input type="checkbox" className="rounded border-slate-700 bg-slate-900" /> <span>Low</span></label>
-              <label className="flex items-center space-x-2 text-slate-300 ml-4"><input type="checkbox" className="rounded border-slate-700 bg-slate-900" /> <span>Medium</span></label>
-              <label className="flex items-center space-x-2 text-slate-300 ml-4"><input type="checkbox" className="rounded border-slate-700 bg-slate-900" /> <span>High</span></label>
+            <label className="block text-sm font-medium text-slate-300 mb-2 mt-4">Risk Level</label>
+            <div className="flex flex-wrap gap-4">
+              {['Low', 'Medium', 'High'].map(risk => (
+                <label key={risk} className="flex items-center space-x-2 text-slate-300 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-cyan-500" 
+                    checked={filters.risk.includes(risk)}
+                    onChange={() => toggleFilter('risk', risk)}
+                  /> 
+                  <span>{risk}</span>
+                </label>
+              ))}
             </div>
           </div>
-          <div className="pt-4 flex justify-end gap-3">
-            <button onClick={() => setIsFiltersOpen(false)} className="btn-secondary">Clear All</button>
+          <div className="pt-6 flex justify-end gap-3">
+            <button onClick={clearFilters} className="btn-secondary">Clear All</button>
             <button onClick={() => setIsFiltersOpen(false)} className="btn-primary">Apply Filters</button>
           </div>
         </div>
